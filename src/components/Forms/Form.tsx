@@ -1,3 +1,4 @@
+"use client";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { ReactElement, ReactNode } from "react";
 type FormConfig = {
