@@ -40,7 +40,6 @@ const LoginPage = () => {
   return (
     <Row
       justify="center"
-      align="middle"
       style={{
         minHeight: "100vh",
       }}
