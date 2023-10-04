@@ -3,30 +3,23 @@
 import { Input, Select } from "antd";
 import { useFormContext, Controller } from "react-hook-form";
 
-type SelectOptions = {
-  label: string;
-  value: string;
-};
-type SelectFieldProps = {
-  options: SelectOptions[];
+type TextAreaProps = {
   name: string;
   size?: "large" | "small";
   value?: string | string[] | undefined;
-  validation?: object;
+  rows?: number;
   label?: string;
-  defaultValue?: SelectOptions;
   placeholder?: string;
 };
-const FormSelectField = ({
+const FormTextArea = ({
   name,
-  options,
-  size,
+  rows,
   value,
-  validation,
+
   label,
-  defaultValue,
+
   placeholder,
-}: SelectFieldProps) => {
+}: TextAreaProps) => {
   const { control } = useFormContext();
 
   return (
@@ -35,14 +28,12 @@ const FormSelectField = ({
       <Controller
         control={control}
         name={name}
-        render={({ field: { value, onChange } }) => (
-          <Select
-            onChange={onChange}
-            size={size}
-            options={options}
-            value={value}
-            style={{ width: "100%" }}
+        render={({ field }) => (
+          <Input.TextArea
+            rows={rows}
             placeholder={placeholder}
+            {...field}
+            defaultValue={value}
           />
         )}
       />
@@ -50,4 +41,4 @@ const FormSelectField = ({
   );
 };
 
-export default FormSelectField;
+export default FormTextArea;
