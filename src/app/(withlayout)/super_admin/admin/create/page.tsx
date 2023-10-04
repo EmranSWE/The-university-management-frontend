@@ -7,6 +7,8 @@ import FormTextArea from "@/components/Forms/FormTextArea";
 import UMBreadCrumb from "@/components/ui/UMBreadCrum";
 import UploadImage from "@/components/ui/UploadImages";
 import { departmentOptions, genderOptions } from "@/constants/global";
+import { adminSchema } from "@/schemas/admin";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Col, Row } from "antd";
 
 import React from "react";
@@ -42,7 +44,7 @@ const CreateAdmin = () => {
           marginBottom: "10px",
         }}
       >
-        <Form submitHandler={onSubmit}>
+        <Form submitHandler={onSubmit} resolver={yupResolver(adminSchema)}>
           <div>
             <p style={{ fontSize: "18px", marginBottom: "10px" }}>
               Admin Information
