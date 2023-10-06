@@ -19,6 +19,7 @@ const CreateDepartmentPage = () => {
       message.error(error.message);
     }
   };
+
   return (
     <div>
       <UMBreadCrumb
