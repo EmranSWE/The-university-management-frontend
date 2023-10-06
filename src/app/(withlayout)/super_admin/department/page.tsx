@@ -1,61 +1,119 @@
 "use client";
-import ActionBar from "@/components/ui/ActionBar";
-import UMBreadCrumb from "@/components/ui/UMBreadCrum";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ReloadOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import UMTable from "@/components/ui/UMTable";
-import { Button } from "antd";
+import { useDepartmentsQuery } from "@/redux/api/departmentApi";
+import { Button, Input, message } from "antd";
+import { useDebounced as useReduxDebounced } from "@/redux/hooks";
 import Link from "next/link";
-import React from "react";
+import { useState } from "react";
+import ActionBar from "@/components/ui/ActionBar";
 
-const Department = () => {
+import dayjs from "dayjs";
+import UMBreadCrumb from "@/components/ui/UMBreadCrum";
+
+const ManageDepartmentPage = () => {
+  const query: Record<string, any> = {};
+
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  console.log(searchTerm);
+  query["limit"] = size;
+  query["page"] = page;
+  query["sortBy"] = sortBy;
+  query["sortOrder"] = sortOrder;
+  query["searchTerm"] = searchTerm;
+
+  const debouncedTerm = useReduxDebounced({
+    searchQuery: searchTerm,
+    delay: 600,
+  });
+  if (!!debouncedTerm) {
+    query["searchTerm"] = debouncedTerm;
+  }
+  const { data, isLoading } = useDepartmentsQuery({ ...query });
+
+  const departments = data?.departments;
+  const meta = data?.meta;
+
+  // const deleteHandler = async (id: string) => {
+  //   message.loading("Deleting.....");
+  //   try {
+  //     //   console.log(data);
+  //     await deleteDepartment(id);
+  //     message.success("Department Deleted successfully");
+  //   } catch (err: any) {
+  //     //   console.error(err.message);
+  //     message.error(err.message);
+  //   }
+  // };
+
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Title",
+      dataIndex: "title",
     },
     {
-      title: "Age",
-      dataIndex: "age",
-      key: "age",
-      //   sorter: true,
-      //   sorter: (a: any, b: any) => a.age - b.age,
+      title: "CreatedAt",
+      dataIndex: "createdAt",
+      render: function (data: any) {
+        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
+      },
+      sorter: true,
     },
     {
       title: "Action",
       render: function (data: any) {
         return (
-          <Button onClick={() => console.log(data)} type="primary" danger>
-            x
-          </Button>
+          <>
+            <Link href={`/super_admin/department/edit/${data?.id}`}>
+              <Button onClick={() => console.log(data)} type="primary">
+                <EyeOutlined />
+              </Button>
+            </Link>
+            <Link href={`/super_admin/department/edit/${data?.id}`}>
+              <Button
+                style={{
+                  margin: "0px 5px",
+                }}
+                onClick={() => console.log(data)}
+                type="primary"
+              >
+                <EditOutlined />
+              </Button>
+            </Link>
+            <Button onClick={() => console.log(data?.id)} type="primary" danger>
+              <DeleteOutlined />
+            </Button>
+          </>
         );
       },
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      name: "John Brown",
-      age: 32,
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      age: 42,
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      age: 32,
-    },
-  ];
-
   const onPaginationChange = (page: number, pageSize: number) => {
     console.log("Page:", page, "PageSize:", pageSize);
+    setPage(page);
+    setSize(pageSize);
   };
   const onTableChange = (pagination: any, filter: any, sorter: any) => {
     const { order, field } = sorter;
     // console.log(order, field);
+    setSortBy(field as string);
+    setSortOrder(order === "ascend" ? "asc" : "desc");
+  };
+
+  const resetFilters = () => {
+    setSortBy("");
+    setSortOrder("");
+    setSearchTerm("");
   };
 
   return (
@@ -63,30 +121,56 @@ const Department = () => {
       <UMBreadCrumb
         items={[
           {
-            label: `super_admin`,
-            link: `/super_admin`,
+            label: "super_admin",
+            link: "/super_admin",
           },
         ]}
       />
 
-      <ActionBar title="Create Department">
-        <Link href="/super_admin/department/create">
-          <Button>Create Department</Button>
-        </Link>
+      <ActionBar title="Department List">
+        <Input
+          type="text"
+          size="large"
+          placeholder="Search..."
+          style={{
+            width: "20%",
+          }}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+        />
+        <div>
+          <Link href="/super_admin/department/create">
+            <Button type="primary">Create</Button>
+          </Link>
+          {(!!sortBy || !!sortOrder || !!searchTerm) && (
+            <Button
+              onClick={resetFilters}
+              type="primary"
+              style={{ margin: "0px 5px" }}
+            >
+              <ReloadOutlined />
+            </Button>
+          )}
+        </div>
       </ActionBar>
+
       <UMTable
-        loading={false}
+        loading={isLoading}
         columns={columns}
-        dataSource={data}
-        pageSize={5}
-        totalPages={100}
+        dataSource={departments}
+        pageSize={size}
+        totalPages={meta?.total}
         showSizeChanger={true}
         onPaginationChange={onPaginationChange}
         onTableChange={onTableChange}
         showPagination={true}
-      ></UMTable>
+      />
     </div>
   );
 };
 
-export default Department;
+export default ManageDepartmentPage;
+function useDebounced(arg0: { searchQuery: string; delay: number }) {
+  throw new Error("Function not implemented.");
+}
