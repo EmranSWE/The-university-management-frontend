@@ -10,6 +10,6 @@ export const adminSchema = yup.object().shape({
     }),
     email: yup.string().email().required("Email is required"),
     designation: yup.string().required("Designation is required"),
-    dateOfBirth: yup.string().required("Date of birth is required"),
+    dateOfBirth: yup.string().required("Date of Birth is required"),
   }),
 });

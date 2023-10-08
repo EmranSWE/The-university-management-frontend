@@ -1,3 +1,4 @@
+"use";
 const SuperAdminPage = () => {
   return (
     <div>

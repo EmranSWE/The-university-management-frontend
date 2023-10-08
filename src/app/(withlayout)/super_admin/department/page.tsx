@@ -1,12 +1,10 @@
 "use client";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ReloadOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
 import UMTable from "@/components/ui/UMTable";
-import { useDepartmentsQuery } from "@/redux/api/departmentApi";
+import {
+  useDeleteDepartmentMutation,
+  useDepartmentsQuery,
+} from "@/redux/api/departmentApi";
 import { Button, Input, message } from "antd";
 import { useDebounced as useReduxDebounced } from "@/redux/hooks";
 import Link from "next/link";
@@ -15,6 +13,7 @@ import ActionBar from "@/components/ui/ActionBar";
 
 import dayjs from "dayjs";
 import UMBreadCrumb from "@/components/ui/UMBreadCrum";
+import UMModal from "@/components/ui/UMModal";
 
 const ManageDepartmentPage = () => {
   const query: Record<string, any> = {};
@@ -24,6 +23,8 @@ const ManageDepartmentPage = () => {
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const [deleteDepartment] = useDeleteDepartmentMutation();
   console.log(searchTerm);
   query["limit"] = size;
   query["page"] = page;
@@ -43,17 +44,18 @@ const ManageDepartmentPage = () => {
   const departments = data?.departments;
   const meta = data?.meta;
 
-  // const deleteHandler = async (id: string) => {
-  //   message.loading("Deleting.....");
-  //   try {
-  //     //   console.log(data);
-  //     await deleteDepartment(id);
-  //     message.success("Department Deleted successfully");
-  //   } catch (err: any) {
-  //     //   console.error(err.message);
-  //     message.error(err.message);
-  //   }
-  // };
+  const deleteHandler = async (id: string) => {
+    console.log(id);
+    message.loading("Deleting.....");
+    try {
+      //   console.log(data);
+      await deleteDepartment(id);
+      message.success("Department Deleted successfully");
+    } catch (err: any) {
+      //   console.error(err.message);
+      message.error(err.message);
+    }
+  };
 
   const columns = [
     {
@@ -89,9 +91,22 @@ const ManageDepartmentPage = () => {
                 <EditOutlined />
               </Button>
             </Link>
-            <Button onClick={() => console.log(data?.id)} type="primary" danger>
+            {/* <Button
+              onClick={() => deleteHandler(data?.id)}
+              type="primary"
+              danger
+            >
               <DeleteOutlined />
-            </Button>
+            </Button> */}
+
+            <UMModal
+              title="Are you sure you want to delete this department?"
+              initialContent=""
+              onConfirm={() => deleteHandler(data?.id)}
+              confirmButtonText="Delete"
+              triggerButtonText=""
+              cancelButtonText={"Cancel"}
+            />
           </>
         );
       },
@@ -126,7 +141,6 @@ const ManageDepartmentPage = () => {
           },
         ]}
       />
-
       <ActionBar title="Department List">
         <Input
           type="text"
@@ -171,6 +185,7 @@ const ManageDepartmentPage = () => {
 };
 
 export default ManageDepartmentPage;
+
 function useDebounced(arg0: { searchQuery: string; delay: number }) {
   throw new Error("Function not implemented.");
 }
