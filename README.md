@@ -1,7 +1,7 @@
 This is University Management Project Front-end
 ## Getting Started
 
-First, run the development server:
+First, you have torun the development server:
 
 ```bash
 npm run dev
